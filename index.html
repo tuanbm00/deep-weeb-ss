@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Deeplink Generator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #050816;
+      --bg-soft: #0b1020;
+      --accent: #4f46e5;
+      --accent-soft: rgba(79, 70, 229, 0.15);
+      --accent-hover: #6366f1;
+      --border: rgba(255, 255, 255, 0.06);
+      --text: #e5e7eb;
+      --text-soft: #9ca3af;
+      --danger: #ef4444;
+      --radius-lg: 18px;
+      --radius-full: 999px;
+      --shadow-soft: 0 18px 40px rgba(15, 23, 42, 0.85);
+      --transition: 150ms ease-out;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent; /* tắt highlight xanh trên mobile */
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background:
+        radial-gradient(circle at 0% 0%, rgba(56, 189, 248, 0.22), transparent 60%),
+        radial-gradient(circle at 100% 100%, rgba(139, 92, 246, 0.22), transparent 60%),
+        #020617;
+      color: var(--text);
+    }
+
+    .container {
+      width: min(520px, 92vw);
+      background: linear-gradient(145deg, rgba(15, 23, 42, 0.96), rgba(15, 23, 42, 0.96));
+      border-radius: 24px;
+      padding: 22px 22px 24px;
+      box-shadow: var(--shadow-soft);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      backdrop-filter: blur(16px);
+    }
+
+    .header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 18px;
+      gap: 10px;
+    }
+
+    .title-block {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      flex: 1;
+    }
+
+    .title {
+      font-size: 18px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .title-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .title-pill {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      padding: 3px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      color: var(--text-soft);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .badge-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 30%, #a5b4fc, #4f46e5);
+      box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.35);
+    }
+
+    .subtitle {
+      font-size: 12px;
+      color: var(--text-soft);
+    }
+
+    /* Umayuru pill – giống GAME INTERNAL TOOL */
+    .link-mini {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      padding: 3px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      text-decoration: none;
+      color: var(--text-soft);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(15, 23, 42, 0.9);
+      transition: border-color var(--transition), background var(--transition), transform var(--transition), color var(--transition);
+      white-space: nowrap;
+    }
+
+    .link-mini .icon {
+      font-size: 11px;
+      line-height: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .link-mini:hover {
+      border-color: rgba(129, 140, 248, 0.9);
+      background: rgba(30, 64, 175, 0.65);
+      color: #e5edff;
+      transform: translateY(-0.5px);
+    }
+
+    .section {
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px dashed rgba(148, 163, 184, 0.35);
+    }
+
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .field-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .field-label {
+      font-size: 12px;
+      color: var(--text-soft);
+      margin-bottom: 4px;
+    }
+
+    .custom-select {
+      position: relative;
+      flex: 1 1 220px;
+      min-width: 200px;
+    }
+
+    .selected {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      background: radial-gradient(circle at 0% 0%, rgba(79, 70, 229, 0.18), transparent 45%),
+        rgba(15, 23, 42, 1);
+      font-size: 13px;
+      color: var(--text);
+      cursor: pointer;
+      display: block;
+      text-align: left;
+      position: relative;
+    }
+
+    .selected span {
+      max-width: 82%;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .selected::after {
+      content: "▾";
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      opacity: 0.7;
+      font-size: 11px;
+    }
+
+    .selected:hover {
+      border-color: rgba(129, 140, 248, 0.7);
+      background: radial-gradient(circle at 0% 0%, rgba(79, 70, 229, 0.25), transparent 50%),
+        rgba(15, 23, 42, 1);
+      box-shadow: 0 0 0 1px rgba(79, 70, 229, 0.5);
+      transform: translateY(-0.5px);
+    }
+
+    /* Khung dropdown – border + bo góc, không scroll trực tiếp */
+    .options {
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      width: 100%;
+      border-radius: 16px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      background: rgba(15, 23, 42, 0.98);
+      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.95);
+      overflow: hidden; /* clip nội dung bên trong */
+      display: none;
+      z-index: 50;
+      padding: 0;
+
+      /* mask để iOS vẫn tôn trọng border-radius khi tap/scroll */
+      -webkit-mask-image: -webkit-radial-gradient(white, black);
+      mask-image: radial-gradient(circle, white 99%, transparent 100%);
+    }
+
+    .options.show {
+      display: block;
+    }
+
+    /* Vùng scroll bên trong */
+    .scroll-area {
+      max-height: 220px;
+      overflow-y: auto;
+      padding: 4px 6px 4px 4px;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(129, 140, 248, 0.45) rgba(30, 41, 59, 0.4);
+    }
+
+    .scroll-area::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .scroll-area::-webkit-scrollbar-track {
+      background: rgba(30, 41, 59, 0.4);
+      border-radius: 10px;
+    }
+
+    .scroll-area::-webkit-scrollbar-thumb {
+      background: rgba(129, 140, 248, 0.55);
+      border-radius: 10px;
+    }
+
+    .scroll-area::-webkit-scrollbar-thumb:hover {
+      background: rgba(129, 140, 248, 0.75);
+    }
+
+    .option {
+      padding: 8px 10px;
+      border-radius: 12px;
+      font-size: 13px;
+      color: var(--text-soft);
+      cursor: pointer;
+      text-align: left;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: background var(--transition), color var(--transition), transform var(--transition);
+    }
+
+    .option::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: rgba(148, 163, 184, 0.7);
+      opacity: 0;
+      transform: scale(0.6);
+      transition: opacity var(--transition), transform var(--transition), background var(--transition);
+    }
+
+    .option:hover {
+      background: rgba(55, 65, 81, 0.85);
+      color: var(--text);
+      transform: translateY(-0.5px);
+    }
+
+    .option:hover::before {
+      opacity: 1;
+      background: #a5b4fc;
+      transform: scale(1);
+    }
+
+    /* Bỏ outline focus vuông trên mobile */
+    @media (max-width: 768px) {
+      .selected:focus,
+      .selected:focus-visible,
+      .option:focus,
+      .option:focus-visible {
+        outline: none;
+      }
+    }
+
+    .custom-checkbox-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-top: 4px;
+    }
+
+    .custom-checkbox {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 12px;
+      border-radius: var(--radius-full);
+      border: 1px solid var(--border);
+      background: rgba(15, 23, 42, 0.9);
+      cursor: pointer;
+      font-size: 13px;
+      color: var(--text-soft);
+      transition: border-color var(--transition), background var(--transition), box-shadow var(--transition), transform var(--transition);
+    }
+
+    .custom-checkbox:hover {
+      border-color: rgba(129, 140, 248, 0.7);
+      box-shadow: 0 0 0 1px rgba(79, 70, 229, 0.55);
+      transform: translateY(-0.5px);
+    }
+
+    .big-checkbox {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+
+    .input-field-wrapper {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 10px;
+      border-radius: var(--radius-full);
+      border: 1px solid var(--border);
+      background: rgba(15, 23, 42, 0.9);
+      font-size: 13px;
+      color: var(--text-soft);
+      transition: border-color var(--transition), background var(--transition), box-shadow var(--transition), transform var(--transition);
+    }
+
+    .input-field-wrapper:hover,
+    .input-field-wrapper:focus-within {
+      border-color: rgba(129, 140, 248, 0.7);
+      box-shadow: 0 0 0 1px rgba(79, 70, 229, 0.55);
+      transform: translateY(-0.5px);
+    }
+
+    .input-field {
+      border: none;
+      outline: none;
+      background: transparent;
+      font-size: 13px;
+      color: var(--text);
+      width: 70px;
+      text-align: right;
+    }
+
+    .input-field::placeholder {
+      color: rgba(148, 163, 184, 0.7);
+    }
+
+    .actions {
+      margin-top: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .custom-button {
+      width: 100%;
+      border: none;
+      border-radius: var(--radius-full);
+      padding: 10px 14px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: radial-gradient(circle at 0% 0%, rgba(248, 250, 252, 0.16), transparent 50%),
+        linear-gradient(135deg, #4f46e5, #7c3aed, #ec4899);
+      color: #f9fafb;
+      box-shadow: 0 14px 35px rgba(79, 70, 229, 0.7);
+      transition: transform 140ms ease-out, box-shadow 140ms ease-out, filter 140ms ease-out;
+    }
+
+    .custom-button span.icon {
+      font-size: 16px;
+      opacity: 0.9;
+    }
+
+    .custom-button:hover {
+      transform: translateY(-1.5px) scale(1.01);
+      box-shadow: 0 18px 40px rgba(79, 70, 229, 0.85);
+      filter: brightness(1.02);
+    }
+
+    .custom-button:active {
+      transform: translateY(0) scale(0.99);
+      box-shadow: 0 10px 24px rgba(79, 70, 229, 0.75);
+    }
+
+    .link-preview {
+      font-size: 11px;
+      color: var(--text-soft);
+      word-break: break-all;
+      padding: 6px 9px;
+      border-radius: 12px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px dashed rgba(148, 163, 184, 0.5);
+    }
+
+    .link-preview span.label {
+      text-transform: uppercase;
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      opacity: 0.7;
+      margin-right: 6px;
+    }
+
+    .link-preview .value {
+      font-family: "JetBrains Mono", SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 11px;
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        padding: 18px 14px 20px;
+        border-radius: 18px;
+      }
+
+      .title {
+        font-size: 16px;
+      }
+
+      .header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+    img {
+      mix-blend-mode: multiply;
+    }
+      button {
+        position: relative; /* CHỐT: ảnh tính toán so với button */
+        overflow: hidden;
+        cursor: pointer;
+      }
+    button img {
+        position: absolute;
+        top: 50%;
+        left: 0;
+        transform: translateY(-50%);
+        width: 40px;
+        transition: transform 0.1s;
+        mix-blend-mode: multiply;
+        border-radius: 15px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+    <div class="header">
+      <div class="title-block">
+        <div class="title">
+          Deeplink Generator
+        </div>
+
+        <div class="title-row">
+          <div class="title-pill">
+            <span class="badge-dot"></span>
+            SPACE SHOOTER TOOL
+          </div>
+
+          <a class="link-mini" href="https://umamusume.com/" target="_blank" rel="noopener noreferrer">
+            <span class="icon">↗</span>
+            <span>Umayuru</span>
+          </a>
+        </div>
+
+        <div class="subtitle">
+          Chọn <b>Game Mode</b>, <b>Room</b>, chế độ Online và Level để tạo deeplink nhanh. 
+        </div>
+        <div class="subtitle">
+          (Trong trường hợp Ship và MiniShip, Level sử dụng như ID)
+        </div>
+      </div>
+    </div>
+
+    <!-- Chọn mode & room -->
+    <div class="section">
+      <div class="field-group">
+        <div class="field-row">
+          <div class="custom-select" id="gameMode">
+            <div id="viewGame" class="selected">
+              <span>Game Mode</span>
+            </div>
+          </div>
+
+          <div class="custom-select" id="roomName">
+            <div id="viewRoom" class="selected">
+              <span>Room Name</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label">Tùy chọn thêm</div>
+        <div class="custom-checkbox-row">
+          <label class="custom-checkbox">
+            <input type="checkbox" id="online" class="big-checkbox">
+            <span>Online Mode</span>
+          </label>
+
+          <div id="input-level" style="display:none;">
+            <div class="input-field-wrapper">
+              <span>Level Index</span>
+              <input type="number" id="numInput" class="input-field" placeholder="-1">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Nút & preview link -->
+    <div class="actions">
+      <a id="dynamicLink" href="#" target="">
+        <button id="btn" type="button" class="custom-button">
+          <span> Mở ứng dụng </span>
+              <div class="track" id="track">
+        <img src="https://umamusume.com/_app/immutable/assets/01_specialweek.DtnlpFlH.webp" 
+            alt="Special Week" id="runner"
+        style="width: 35px; height: auto; display: block;">
+    </div>
+        </button>
+      </a>
+      <div class="link-preview" id="linkPreview">
+        <span class="label">Preview</span>
+        <span class="value">Chưa có deeplink. Hãy chọn Mode & Room.</span>
+      </div>
+    </div>
+  </div>
+
+  
+<script>
+const runner = document.getElementById("runner");
+const btn = document.getElementById("btn");
+
+let x = 0;            // vị trí hiện tại
+let direction = 1;    // 1 = sang phải, -1 = sang trái
+const speed = 100;    // px/giây
+
+function loop(timestamp) {
+  if (!loop.last) loop.last = timestamp;
+  const dt = (timestamp - loop.last) / 1000;
+  loop.last = timestamp;
+
+  x += direction * speed * dt;
+
+  const max = btn.clientWidth - runner.clientWidth;
+  if (x >= max) {
+    x = max;
+    direction = -1;
+    runner.style.transform = "translateY(-50%) scaleX(1)"; // quay ngược
+  }
+  if (x <= 0) {
+    x = 0;
+    direction = 1;
+    runner.style.transform = "translateY(-50%) scaleX(-1)";
+  }
+
+  runner.style.left = x + "px";
+  requestAnimationFrame(loop);
+}
+
+requestAnimationFrame(loop);
+</script>
+
+  <script>
+    const gameModes = [
+      "IAP", "IAPMAINHOME", "CHEST", "EVENT", "NEWEVENT", "MISSION",
+      "ONLINE", "GUILD", "WHEEL", "MINIGAME", "SHIP", "BATTLEPASS",
+      "ENDLESS", "WORLDBOSS", "ARENA", "DAILYQUEST", "DICE", "GUILDEVENT", "SECRETEVENT"
+    ];
+
+    const roomNames = ["-- Room --"];
+
+    const data = {
+      IAP: ["GEM", "PACK", "MONTHLY", "WINGCARD", "MEDAL", "SILVER", "HERO", "SAPPHIRE", "TOPAZ", "BOMB", "XSOLLA_LOGIN", "SALESHIP", "SALEMINISHIP"],
+      IAPMAINHOME: ["BLACKDRAGON", "FLYPACK", "STEPPACK", "GACHASKIN", "GACHASKIN&BUYTICKET=1", "SPECIALOFFER"],
+      CHEST: ["TREASURECHESS", "EQUIPMENTCHESS", "EQUIPMENTCHARACTER"],
+      EVENT: ["LEADERBOARD", "SHOPEVENT", "SHOPLIMITED", "BUYTICKET"],
+      NEWEVENT: ["LEADERBOARD"],
+      MISSION: ["MISSION", "BOSSFIGHT"],
+      ONLINE: ["PVP1V1", "SHOPPVP1V1", "PVPSQUAD", "SURVIVAL", "TRIALTOWER", "BATTLEROYAL", "PVP2V2"],
+      GUILD: ["LEADERBOARD"],
+      WHEEL: ["WHEEL", "SPECIALWHEEL"],
+      MINIGAME: ["MINIGAME", "BUYTICKET", "LEADERBOARD"],
+      SHIP: ["SHIP", "MINISHIP&LEFT=1", "MINISHIP&RIGHT=1", "EQUIPMENT", "CHARACTER", "CHARACTER_SALVAGE", "COPILOT", "COPILOT_RECYCLE", "COPILOT_GACHA"],
+      BATTLEPASS: ["BATTLEPASS"],
+      ENDLESS: ["ENDLESS"],
+      WORLDBOSS: ["WORLDBOSS"],
+      ARENA: ["ARENA"],
+      DAILYQUEST: ["DAILY", "WEEKLY", "PROGRESS"],
+      DICE: ["DICE"],
+      GUILDEVENT: ["LEADERBOARD", "QUEST", "QUEST_DAILY", "REWARDS"],
+      SECRETEVENT: ["VALOR&VERSION=1"],
+    };
+
+     const extraParams = [
+      "SALESHIP", "SALEMINISHIP", "MISSION", , "BOSSFIGHT", "SHIP", "MINISHIP&RIGHT=1", "MINISHIP&LEFT=1", "VALOR&VERSION=1"
+    ];
+
+    function formatUrl(mode, room, online, level) {
+      const lvl = Number(level);
+      const hasLevel = !Number.isNaN(lvl) && lvl > 0 && extraParams.includes(room);
+
+      if (online) {
+        return hasLevel
+          ? `spaceshooter2://mainactivity?${mode}=${room}&LEVEL=${lvl}`
+          : `spaceshooter2://mainactivity?${mode}=${room}`;
+      } else {
+        return hasLevel
+          ? `spaceshooter2://mainactivity?${mode}=${room}&VERIFY=0&LEVEL=${lvl}`
+          : `spaceshooter2://mainactivity?${mode}=${room}&VERIFY=0`;
+      }
+    }
+
+    function updateLink() {
+      const mode = document.getElementById("viewGame").textContent.trim();
+      const room = document.getElementById("viewRoom").textContent.trim();
+      const online = document.getElementById("online").checked;
+      const levelValue = document.getElementById("numInput").value;
+
+      if (!gameModes.includes(mode) || room === "Room Name" || room === "-- Room --") {
+        document.getElementById("dynamicLink").href = "#";
+        document.querySelector("#linkPreview .value").textContent =
+          "Chưa đủ thông tin. Hãy chọn Game Mode & Room.";
+        return;
+      }
+
+      const url = formatUrl(mode, room, online, levelValue === "" ? -1 : levelValue);
+      document.getElementById("dynamicLink").href = url;
+      document.querySelector("#linkPreview .value").textContent = url;
+    }
+
+    function createDropdown(id, viewId, options) {
+      const wrapper = document.createElement("div");
+      wrapper.id = id;
+      wrapper.className = "options";
+
+      const scrollArea = document.createElement("div");
+      scrollArea.className = "scroll-area";
+      wrapper.appendChild(scrollArea);
+
+      options.forEach(opt => {
+        const option = document.createElement("div");
+        option.textContent = opt;
+        option.className = "option";
+
+        option.addEventListener("click", () => {
+          const viewEl = document.getElementById(viewId);
+          const span = viewEl.querySelector("span") || viewEl;
+          span.textContent = opt;
+
+          if(id === "Room"){
+            const selected = opt;
+            const inputLevelWrapper = document.getElementById("input-level");
+            const numInput = document.getElementById("numInput");
+            numInput.value = "";
+            if (extraParams.includes(selected)) {
+              inputLevelWrapper.style.display = "block";
+            } else {
+              inputLevelWrapper.style.display = "none";
+            }
+          }
+
+          if (id === "Mode") {
+            const selected = opt;
+            const inputLevelWrapper = document.getElementById("input-level");
+            const numInput = document.getElementById("numInput");
+            numInput.value = "";
+
+            if (selected === "MISSION" || selected === "SHIP"|| selected === "SECRETEVENT") {
+              inputLevelWrapper.style.display = "block";
+            } else {
+              inputLevelWrapper.style.display = "none";
+            }
+
+            if (data[selected]) {
+              const oldRoom = document.getElementById("Room");
+              if (oldRoom) {
+                oldRoom.remove();
+              }
+              document.getElementById("roomName").appendChild(
+                createDropdown("Room", "viewRoom", data[selected])
+              );
+
+              const viewRoomEl = document.getElementById("viewRoom");
+              const spanRoom = viewRoomEl.querySelector("span") || viewRoomEl;
+              spanRoom.textContent = data[selected][0];
+            }
+          }
+
+          wrapper.classList.remove("show");
+          updateLink();
+        });
+
+        scrollArea.appendChild(option);
+      });
+
+      return wrapper;
+    }
+
+    // Khởi tạo dropdown
+    document.getElementById("gameMode").appendChild(
+      createDropdown("Mode", "viewGame", gameModes)
+    );
+    document.getElementById("roomName").appendChild(
+      createDropdown("Room", "viewRoom", roomNames)
+    );
+
+    // Toggle dropdown
+    document.getElementById("gameMode").addEventListener("click", (e) => {
+      if (!e.target.closest(".selected")) return;
+      const modeOptions = document.getElementById("Mode");
+      const roomOptions = document.getElementById("Room");
+      if (modeOptions) modeOptions.classList.toggle("show");
+      if (roomOptions) roomOptions.classList.remove("show");
+    });
+
+    document.getElementById("roomName").addEventListener("click", (e) => {
+      if (!e.target.closest(".selected")) return;
+      const roomOptions = document.getElementById("Room");
+      if (roomOptions) roomOptions.classList.toggle("show");
+      const modeOptions = document.getElementById("Mode");
+      if (modeOptions) modeOptions.classList.remove("show");
+    });
+
+    // Đóng dropdown khi click ra ngoài
+    document.addEventListener("click", (e) => {
+      if (!e.target.closest(".custom-select")) {
+        const modeOptions = document.getElementById("Mode");
+        const roomOptions = document.getElementById("Room");
+        if (modeOptions) modeOptions.classList.remove("show");
+        if (roomOptions) roomOptions.classList.remove("show");
+      }
+    });
+
+    document.getElementById("online").addEventListener("change", updateLink);
+    document.getElementById("numInput").addEventListener("input", updateLink);
+  </script>
+
+</body>
+
+</html>
