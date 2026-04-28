@@ -1002,8 +1002,8 @@
 
             // build metadata
             const metadata = {
-                GameMode: document.getElementById("viewGame").value.trim(),
-                RoomName: document.getElementById("viewRoom").value.trim(),
+                GameMode: document.getElementById("viewGame").textContent.trim(),
+                RoomName: document.getElementById("viewRoom").textContent.trim(),
                 RoomID: document.getElementById("room-id").value.trim(),
                 ServerUrl: document.getElementById("server-url").value.trim(),
                 OnlineMode: document.getElementById("online").checked ? "1" : "0",
